@@ -11,7 +11,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const jwt = require('jsonwebtoken'); // ✅ Import jwt pour l'authentification Socket.IO
+const jwt = require('jsonwebtoken');
 
 
 dotenv.config();
