@@ -99,7 +99,7 @@ router.post('/login', async (req, res) => {
             secure: process.env.NODE_ENV === 'production', // true si HTTPS en production
             sameSite: 'Lax', // Protection CSRF. 'None' avec 'secure: true' si nécessaire pour CORS strict.
             expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // Expiration 1 jour (doit correspondre à expiresIn du JWT)
-            domain: 'localhost', // ✅ TRÈS IMPORTANT pour le développement local
+            //domain: 'localhost', // ✅ TRÈS IMPORTANT pour le développement local
             path: '/', // Rend le cookie accessible sur toutes les routes
         });
 
