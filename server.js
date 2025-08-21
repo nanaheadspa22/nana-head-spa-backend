@@ -93,7 +93,7 @@ app.use(`${api}/page-banners`, bannerRoutes);
 
 
 mongoose.set("strictQuery", false);
-mongoose.connect(process.env.MONGODB_URL_LOCAL)
+mongoose.connect(process.env.MONGODB_URL_ONLINE)
     .then(() => console.log('DBconnection succès!'))//message à afficher si mongoDB fonctionne normalement
     .catch((err) => {
         console.log(err);
