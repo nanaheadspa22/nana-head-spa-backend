@@ -97,7 +97,9 @@ router.post('/login', async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true, // Empêche l'accès via JavaScript côté client
             secure: process.env.NODE_ENV === 'production', // true si HTTPS en production
-            sameSite: 'Lax', // Protection CSRF. 'None' avec 'secure: true' si nécessaire pour CORS strict.
+            sameSite: 'None', // Protection CSRF. 'None' avec 'secure: true' si nécessaire pour CORS strict.
+            //sameSite: 'Lax', // en local
+
             expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // Expiration 1 jour (doit correspondre à expiresIn du JWT)
             //domain: 'localhost', // ✅ TRÈS IMPORTANT pour le développement local
             path: '/', // Rend le cookie accessible sur toutes les routes
@@ -130,7 +132,8 @@ router.post('/logout', (req, res) => {
     res.clearCookie("token", {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: "Lax",
+        sameSite: "None",
+        //sameSite: 'Lax', // en local
     });
     res.status(200).send({ success: true, message: "Déconnecté." });
 });
