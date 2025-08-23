@@ -94,17 +94,17 @@ router.post('/login', async (req, res) => {
             { expiresIn: '1d' }
         );
 
-        res.cookie('token', token, {
-            httpOnly: true, // Empêche l'accès via JavaScript côté client
-            //secure: process.env.NODE_ENV === 'production', // true si HTTPS en production
-            secure: true,
-            sameSite: 'None', // Protection CSRF. 'None' avec 'secure: true' si nécessaire pour CORS strict.
-            expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // Expiration 1 jour (doit correspondre à expiresIn du JWT)
-            path: '/', // Rend le cookie accessible sur toutes les routes
-            //sameSite: 'Lax', // en local
-            //domain: '.nanaheadspa.com', // 🔥 pour partager entre api.nanaheadspa.com et nanaheadspa
-            //domain: 'localhost', // ✅ TRÈS IMPORTANT pour le développement local
+        const cookieDomain = process.env.NODE_ENV === 'production'
+            ? '.nanaheadspa.com'
+            : 'localhost';
 
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Mieux de le lier à l'environnement
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', // 'None' en production pour CORS, 'Lax' en local est plus sécurisé
+            expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            path: '/',
+            domain: cookieDomain // ✅ Active cette ligne !
         });
 
         // Réponse avec le token
@@ -131,11 +131,14 @@ router.post('/login', async (req, res) => {
 
 
 router.post('/logout', (req, res) => {
+    const cookieDomain = process.env.NODE_ENV === 'production'
+        ? '.nanaheadspa.com'
+        : 'localhost';
+
     res.clearCookie("token", {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: "None",
-        //sameSite: 'Lax', // en local
+        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
     });
     res.status(200).send({ success: true, message: "Déconnecté." });
 });
