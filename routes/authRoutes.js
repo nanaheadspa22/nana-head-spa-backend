@@ -99,7 +99,7 @@ router.post('/login', async (req, res) => {
             secure: process.env.NODE_ENV === 'production', // true si HTTPS en production
             sameSite: 'None', // Protection CSRF. 'None' avec 'secure: true' si nécessaire pour CORS strict.
             //sameSite: 'Lax', // en local
-
+            domain: '.nanaheadspa.com', // 🔥 pour partager entre api.nanaheadspa.com et nanaheadspa
             expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // Expiration 1 jour (doit correspondre à expiresIn du JWT)
             //domain: 'localhost', // ✅ TRÈS IMPORTANT pour le développement local
             path: '/', // Rend le cookie accessible sur toutes les routes
