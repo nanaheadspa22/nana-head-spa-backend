@@ -36,15 +36,9 @@ const allowedOrigins = process.env.CORS_ORIGIN_ONLINE
 
 //cors
 app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS A'));
-        }
-    },
+    origin: allowedOrigins,
     credentials: true,
-    methods: "GET,PUT,DELETE,POST,PATCH" // Spécifiez toutes les méthodes HTTP que votre API utilise
+    methods: ["GET", "PUT", "DELETE", "POST", "PATCH"]
 }));
 
 
