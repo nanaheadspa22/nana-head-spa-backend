@@ -104,7 +104,7 @@ router.post('/login', async (req, res) => {
             sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', // 'None' en production pour CORS, 'Lax' en local est plus sécurisé
             expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
             path: '/',
-            //domain: cookieDomain // ✅ Active cette ligne !
+            domain: cookieDomain // ✅ Active cette ligne !
         });
 
         // Réponse avec le token
