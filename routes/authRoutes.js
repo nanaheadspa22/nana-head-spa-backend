@@ -5,7 +5,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const dotenv = require('dotenv');
-
+const { sendResetPasswordEmail } = require('../utils/emailService.js');
+const { body, validationResult } = require('express-validator');
+const crypto = require('crypto');
 
 dotenv.config();
 const secret = process.env.PASS_SEC
@@ -145,5 +147,90 @@ router.post('/logout', (req, res) => {
     res.status(200).send({ success: true, message: "Déconnecté." });
 });
 
+
+
+router.post('/forgot-password', async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) {
+            return res.status(404).send({ success: false, message: 'Aucun utilisateur trouvé avec cet email.' });
+        }
+
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+        const resetPasswordExpires = Date.now() + 3600000; // Expire dans 1 heure
+
+        user.resetPasswordToken = resetPasswordToken;
+        user.resetPasswordExpires = resetPasswordExpires;
+
+        await user.save();
+
+        const resetUrl = `${req.protocol}://${req.get('host')}/api/auth/reset-password/${resetToken}`;
+
+        // Utilise la nouvelle fonction d'envoi d'e-mail
+        await sendResetPasswordEmail(user.email, user.firstName, resetUrl);
+
+        res.status(200).send({ success: true, message: 'Un lien de réinitialisation a été envoyé à votre email.' });
+
+    } catch (err) {
+        // En cas d'erreur, efface les champs pour éviter de bloquer l'utilisateur
+        if (user) {
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpires = undefined;
+            await user.save();
+        }
+        console.error("Erreur serveur lors de la demande de réinitialisation :", err);
+        res.status(500).send({ success: false, message: 'Erreur serveur lors de la demande de réinitialisation.' });
+    }
+});
+
+
+
+router.put('/reset-password/:token',
+    [
+        body('password')
+            .isLength({ min: 6 }).withMessage('Le mot de passe doit contenir au moins 6 caractères.')
+            .matches(/[a-z]/).withMessage('Le mot de passe doit contenir au moins une lettre minuscule.')
+            .matches(/[A-Z]/).withMessage('Le mot de passe doit contenir au moins une lettre majuscule.')
+            .matches(/[0-9]/).withMessage('Le mot de passe doit contenir au moins un chiffre.')
+            .matches(/[^a-zA-Z0-9]/).withMessage('Le mot de passe doit contenir au moins un caractère spécial.'),
+        body('confirmPassword').custom((value, { req }) => {
+            if (value !== req.body.password) {
+                throw new Error('Les mots de passe ne correspondent pas.');
+            }
+            return true;
+        }),
+    ],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).send({ success: false, errors: errors.array() });
+        }
+
+        try {
+            const resetPasswordToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+            const user = await User.findOne({
+                resetPasswordToken,
+                resetPasswordExpires: { $gt: Date.now() },
+            });
+
+            if (!user) {
+                return res.status(400).send({ success: false, message: 'Jeton de réinitialisation invalide ou expiré.' });
+            }
+
+            user.password = bcrypt.hashSync(req.body.password, 10);
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpires = undefined;
+
+            await user.save();
+
+            res.status(200).send({ success: true, message: 'Mot de passe réinitialisé avec succès.' });
+
+        } catch (err) {
+            res.status(500).send({ success: false, message: 'Erreur serveur lors de la réinitialisation du mot de passe.' });
+        }
+    }
+);
 
 module.exports = router;

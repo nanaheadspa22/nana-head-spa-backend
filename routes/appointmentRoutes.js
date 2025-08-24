@@ -103,7 +103,7 @@ router.post('/', authMiddleware, async (req, res) => {
             return res.status(409).json({ success: false, message: 'Ce créneau horaire est déjà réservé. Veuillez choisir une autre heure.' });
         }
 
-        // 6. Créer le rendez-vous
+        // 6. Créer le rendez-vous 
         const newAppointment = new Appointment({
             client: clientId,
             formula: formulaId,
@@ -540,11 +540,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // Route: PUT /api/v1/appointments/:id
 // Cette route permettra la modification de plusieurs champs.
 router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
-
-    console.log("Requête de mise à jour de rendez-vous (admin) :", req.body);
     try {
-
-
         const { id } = req.params;
         const adminId = req.user.userId;
         const { date, startTime, endTime, formulaId, status, adminNotes, cancellationReason } = req.body;
@@ -558,30 +554,26 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
             return res.status(404).json({ success: false, message: 'Rendez-vous introuvable.' });
         }
 
+        // ⭐ CORRECTION : Déclaration de oldStatus
+        const oldStatus = appointment.status;
+
         // Mettre à jour les champs si présents dans la requête
         if (date !== undefined) {
             const newDate = new Date(date);
-            // Validation de date si nécessaire (ex: pas dans le passé)
             if (newDate.toDateString() !== appointment.date.toDateString()) {
-                // Si la date change, il faudra probablement re-valider la disponibilité
-                // Pour l'instant, on se contente de la mise à jour, mais une validation complète
-                // serait nécessaire pour une application robuste.
                 appointment.date = newDate;
             }
         }
         if (startTime !== undefined) {
-            // Validation du format HH:MM
             if (!/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/.test(startTime)) {
                 return res.status(400).json({ success: false, message: "L'heure de début doit être au format HH:MM." });
             }
             appointment.startTime = startTime;
         }
         if (endTime !== undefined) {
-            // Validation du format HH:MM
             if (!/^(0[0-9]|1[0[0-9]|2[0-3]):[0-5][0-9]$/.test(endTime)) {
                 return res.status(400).json({ success: false, message: "L'heure de fin doit être au format HH:MM." });
             }
-            // Vérifier que l'heure de fin est après l'heure de début si les deux sont fournis
             if (startTime !== undefined && parseTime(endTime) <= parseTime(startTime)) {
                 return res.status(400).json({ success: false, message: 'L\'heure de fin doit être après l\'heure de début.' });
             } else if (startTime === undefined && parseTime(endTime) <= parseTime(appointment.startTime)) {
@@ -612,12 +604,10 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
             appointment.cancellationReason = cancellationReason;
         }
 
-        // Toujours enregistrer l'admin qui a traité la modification
         appointment.processedBy = adminId;
 
         const updatedAppointment = await appointment.save();
 
-        // ✅ 2. ENVOI DU MAIL DE CONFIRMATION si le statut passe à 'confirmed'
         if (oldStatus !== 'confirmed' && updatedAppointment.status === 'confirmed') {
             const client = await User.findById(updatedAppointment.client);
             const formula = await Formula.findById(updatedAppointment.formula);
@@ -626,7 +616,7 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
                 const appointmentDetails = {
                     date: new Date(updatedAppointment.date).toLocaleDateString(),
                     startTime: updatedAppointment.startTime,
-                    formulaName: formula.name
+                    formulaName: formula.title
                 };
                 await sendAppointmentConfirmedEmail(client.email, client.firstName, appointmentDetails);
             }

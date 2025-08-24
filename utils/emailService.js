@@ -75,7 +75,7 @@ const sendAppointmentConfirmedEmail = (to, clientName, appointmentDetails) => {
             <ul>
                 <li><strong>Date :</strong> ${appointmentDetails.date}</li>
                 <li><strong>Heure :</strong> ${appointmentDetails.startTime}</li>
-                <li><strong>Formule :</strong> ${appointmentDetails.formulaName}</li>
+                <li><strong>Formule :</strong> ${appointmentDetails.formulaName}</li>  
             </ul>
             <p>Nous vous attendons !</p>
         </div>
@@ -101,8 +101,28 @@ const sendAppointmentCancelledEmail = (to, clientName, appointmentDetails, reaso
     return sendEmail(to, subject, htmlContent);
 };
 
+
+const sendResetPasswordEmail = (to, clientName, resetUrl) => {
+    const subject = 'Réinitialisation de votre mot de passe chez Nana Head Spa';
+    const htmlContent = `
+        <div style="padding: 20px; font-family: Arial, sans-serif;">
+            <h2>Bonjour ${clientName},</h2>
+            <p>Vous avez demandé une réinitialisation de votre mot de passe. Veuillez cliquer sur le lien ci-dessous pour créer un nouveau mot de passe :</p>
+            <p style="text-align: center;">
+                <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #6a1b9a; color: #ffffff; text-decoration: none; border-radius: 5px;">
+                    Réinitialiser mon mot de passe
+                </a>
+            </p>
+            <p>Ce lien est valide pour une durée limitée. Si vous n'êtes pas à l'origine de cette demande, veuillez ignorer cet e-mail.</p>
+            <p>À bientôt !</p>
+        </div>
+    `;
+    return sendEmail(to, subject, htmlContent);
+};
+
 module.exports = {
     sendAppointmentConfirmationEmail,
     sendAppointmentConfirmedEmail,
     sendAppointmentCancelledEmail,
+    sendResetPasswordEmail
 };
