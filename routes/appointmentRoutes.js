@@ -664,6 +664,22 @@ router.put('/:id/status', authMiddleware, adminMiddleware, async (req, res) => {
         appointment.processedBy = adminId; // Enregistre l'admin qui a modifié le statut
 
         const updatedAppointment = await appointment.save();
+
+
+        // Si le statut est changé en 'confirmed', envoyer un email de confirmation au client
+
+        const client = await User.findById(appointment.client);
+        const formula = await Formula.findById(appointment.formula);
+        if (client && formula && client.email) {
+            const appointmentDetails = {
+                date: new Date(appointment.date).toLocaleDateString(),
+                startTime: appointment.startTime,
+                formulaName: formula.title
+            };
+            await sendAppointmentConfirmedEmail(client.email, client.firstName, appointmentDetails);
+        }
+
+
         res.status(200).json({ success: true, message: `Statut du rendez-vous mis à jour à '${status}'.`, data: updatedAppointment });
 
     } catch (error) {

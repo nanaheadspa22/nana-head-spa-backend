@@ -77,7 +77,7 @@ const sendAppointmentConfirmedEmail = (to, clientName, appointmentDetails) => {
                 <li><strong>Heure :</strong> ${appointmentDetails.startTime}</li>
                 <li><strong>Formule :</strong> ${appointmentDetails.formulaName}</li>  
             </ul>
-            <p>Nous vous attendons !</p>
+            <p>Nous vous attendons !</p> 
         </div>
     `;
     return sendEmail(to, subject, htmlContent);
