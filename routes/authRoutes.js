@@ -8,6 +8,7 @@ const dotenv = require('dotenv');
 const { sendResetPasswordEmail } = require('../utils/emailService.js');
 const { body, validationResult } = require('express-validator');
 const crypto = require('crypto');
+const path = require('path');
 
 dotenv.config();
 const secret = process.env.PASS_SEC
@@ -142,7 +143,9 @@ router.post('/logout', (req, res) => {
     res.clearCookie("token", {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
+        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+        domain: cookieDomain,
+        path: '/'
     });
     res.status(200).send({ success: true, message: "Déconnecté." });
 });
