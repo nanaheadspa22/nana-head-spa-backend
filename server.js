@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 // Si process.env.CORS_ORIGIN n'est pas défini, nous mettons une valeur par défaut pour le développement local.
 // On divise la chaîne par des virgules pour gérer plusieurs origines si nécessaire.
 
-const allowedOrigins = process.env.ONLINE
+const allowedOrigins = process.env.CORS_ORIGIN_ONLINE
     ? process.env.CORS_ORIGIN_ONLINE.split(',')
     : ['http://localhost:3000', 'http://localhost:5000']; // Ajoutez d'autres origines locales si besoin
 
