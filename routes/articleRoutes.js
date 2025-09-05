@@ -217,7 +217,7 @@ router.put('/:slug', authMiddleware, adminMiddleware, upload.single('image'), as
 // Route: DELETE /api/v1/articles/:slug
 router.delete('/:slug', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const deletedArticle = await Article.findOneAndDelete({ slug: slug });
+        const deletedArticle = await Article.findOneAndDelete({ slug: req.params.slug });
         if (!deletedArticle) {
             return res.status(404).json({ success: false, message: 'Article introuvable.' });
         }

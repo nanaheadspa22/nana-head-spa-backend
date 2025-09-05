@@ -126,8 +126,8 @@ router.post('/login', async (req, res) => {
                 // N'envoyez pas le mot de passe ou le hash du mot de passe ici
             },
         });
-        console.log("Cookie reçu :", req.cookies.token);
-        console.log("Headers :", req.headers);
+        //console.log("Cookie reçu :", req.cookies.token);
+        //console.log("Headers :", req.headers);
     } catch (err) {
         console.error("Erreur serveur lors de la connexion :", err); // Ajout d'un log plus précis
         res.status(500).send({ success: false, message: 'Erreur serveur interne lors de la connexion.', error: err.message });

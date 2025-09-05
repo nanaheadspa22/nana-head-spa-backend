@@ -62,7 +62,7 @@ const userSchema = new mongoose.Schema(
         lastAdWatchedDate: {
             type: Date,
         },
-        totalAdsWatched: { // <-- AJOUTE CE CHAMP pour le compteur global par utilisateur
+        totalAdsWatched: {
             type: Number,
             default: 0
         },
