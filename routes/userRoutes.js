@@ -119,6 +119,16 @@ router.get('/recent', authMiddleware, adminMiddleware, async (req, res) => {
     }
 });
 
+router.get('/admins', authMiddleware, async (req, res) => {
+    try {
+        const admins = await User.find({ role: 'admin' }).select('firstName lastName _id');
+        res.status(200).json({ success: true, data: admins });
+    } catch (error) {
+        console.error('Erreur lors de la récupération des administrateurs :', error);
+        res.status(500).json({ success: false, message: 'Échec de la récupération des administrateurs.' });
+    }
+});
+
 // Route: GET /api/v1/users/registrations-last-7-days
 router.get('/registrations-last-7-days', authMiddleware, adminMiddleware, async (req, res) => {
     try {
@@ -298,7 +308,6 @@ router.get('/email/:email', authMiddleware, adminMiddleware, async (req, res) =>
 });
 
 
-
 // Création d'un compte utilisateur (par l'admin)
 // Route: POST /api/v1/users/add
 router.post('/add', authMiddleware, adminMiddleware, async (req, res) => {
@@ -356,8 +365,6 @@ router.post('/add', authMiddleware, adminMiddleware, async (req, res) => {
         res.status(500).send({ success: false, message: 'Erreur serveur lors de la création de l\'utilisateur.' });
     }
 });
-
-
 
 
 
@@ -482,7 +489,6 @@ router.put('/update-picture/:id', uploadOptions.single('profilePicture'), authMi
         data: updatedPicture
     });
 });
-
 
 
 // Supprimer un utilisateur

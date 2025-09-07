@@ -168,7 +168,8 @@ router.post('/forgot-password', async (req, res) => {
 
         await user.save();
 
-        const resetUrl = `${req.protocol}://${req.get('host')}/api/auth/reset-password/${resetToken}`;
+        const resetUrl = `https://www.nanaheadspa.com/reset-password/${resetToken}`;
+        //const resetUrl = `${req.protocol}://${req.get('host')}/api/auth/reset-password/${resetToken}`;
 
         // Utilise la nouvelle fonction d'envoi d'e-mail
         await sendResetPasswordEmail(user.email, user.firstName, resetUrl);

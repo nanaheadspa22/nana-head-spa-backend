@@ -76,6 +76,8 @@ const fidelityRoutes = require('./routes/fidelityRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const galleryRoutes = require('./routes/galleryRoutes');
 const bannerRoutes = require('./routes/bannerRoutes');
+const clientFileRoutes = require('./routes/clientFileRoutes');
+
 
 
 
@@ -89,6 +91,7 @@ app.use(`${api}/fidelity`, fidelityRoutes);
 app.use(`${api}/chat`, chatRoutes);
 app.use(`${api}/gallery-images`, galleryRoutes);
 app.use(`${api}/page-banners`, bannerRoutes);
+app.use(`${api}/client-files`, clientFileRoutes);
 
 
 

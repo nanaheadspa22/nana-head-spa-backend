@@ -3,7 +3,7 @@ const router = require('express').Router();
 const Conversation = require('../models/conversation.model');
 const Message = require('../models/message.model');
 const User = require('../models/user.model');
-const authMiddleware = require('../middlewares/authMiddleware'); // Assurez-vous que le chemin est correct
+const authMiddleware = require('../middlewares/authMiddleware');
 
 // Fonction helper pour populer les conversations
 // Cette fonction prend un objet de requête Mongoose comme entrée (ex: Conversation.find(...))
@@ -92,18 +92,22 @@ router.get('/:conversationId/messages', authMiddleware, async (req, res) => {
 // @route   POST /api/v1/chat/start-with-admin
 // @desc    Pour un client : démarrer ou accéder à sa conversation unique avec un admin
 // @access  Privé (réservé aux clients)
-router.post('/start-with-admin', authMiddleware, async (req, res) => {
+router.post('/start-with-admin/:adminId', authMiddleware, async (req, res) => {
     try {
         const clientId = req.user.userId;
+        const { adminId } = req.params;
+
         if (req.user.role !== 'client') {
             return res.status(403).json({ success: false, message: 'Seuls les clients peuvent démarrer des conversations avec les administrateurs via cette route.' });
         }
 
-        const adminUser = await User.findOne({ role: 'admin' });
-        if (!adminUser) {
+        console.log("adminId reçu :", adminId);
+
+        const adminUser = await User.findById(adminId);
+        if (!adminUser || adminUser.role !== 'admin') {
             return res.status(404).json({ success: false, message: 'Aucun administrateur disponible pour discuter.' });
         }
-        const adminId = adminUser._id;
+        // const adminId = adminUser._id;
 
         let conversation = await Conversation.findOne({
             participants: { $all: [clientId, adminId] }
